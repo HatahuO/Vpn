@@ -11,6 +11,7 @@ Extraction **non officielle** et reproductible du programme publié sur <https:/
 | `programme_lfi_2027.json` | Données structurées : documents → unités → sections → blocs (`kind`, `id`, `text`). Contient les chiffres de contrôle (`meta.stats`). |
 | `mesures.csv` | Une ligne par proposition (séparateur `;`, UTF-8 avec BOM : s'ouvre directement dans Excel/LibreOffice). |
 | `build.py` + `viewer_template.html` | Le code qui régénère tout. |
+| `artifact_template.html` + `build_artifact.py` | Version « artefact » (recherche classée, questions à Claude avec sources vérifiées, sélection exportable). `python3 build_artifact.py --out page.html` produit la page à publier. |
 
 ## Périmètre
 
