@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programme LFI 2027 — consultable</title>
+<style>
+:root{
+  --bg:#fff; --fg:#1c1d21; --muted:#5b5f69; --line:#e2e4e9; --card:#f5f6f8; --card2:#eceef2;
+  --accent:#0f5c6e; --accent-fg:#fff; --mark:#ffe48a; --cle-bg:#fff6e0; --cle-line:#e0a526; --warn:#8a4b00;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121316; --fg:#e9eaed; --muted:#9ca0aa; --line:#2b2e35; --card:#1a1c21; --card2:#23262d;
+    --accent:#5cc3d6; --accent-fg:#06222a; --mark:#6d5612; --cle-bg:#2a2210; --cle-line:#b88a1e; --warn:#f0b35a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121316; --fg:#e9eaed; --muted:#9ca0aa; --line:#2b2e35; --card:#1a1c21; --card2:#23262d;
+  --accent:#5cc3d6; --accent-fg:#06222a; --mark:#6d5612; --cle-bg:#2a2210; --cle-line:#b88a1e; --warn:#f0b35a;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:92px}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* barre du haut */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px}
+.top-row{display:flex;gap:10px;align-items:center;max-width:1400px;margin:0 auto;flex-wrap:wrap}
+.brand{font-weight:700;font-size:15px;white-space:nowrap}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.search{flex:1 1 320px;position:relative;min-width:220px}
+.search input[type=search]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;max-width:1400px;margin:8px auto 0;font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);cursor:pointer;user-select:none}
+.chip input{margin:0}
+.chip:has(input:checked){background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+select{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);max-width:260px}
+.btn{padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}
+.btn:hover{background:var(--card2)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+#toc-toggle{display:none}
+
+/* mise en page */
+.layout{display:grid;grid-template-columns:310px minmax(0,1fr);max-width:1400px;margin:0 auto}
+nav#side{position:sticky;top:92px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;padding:12px 8px 40px 16px;font-size:14px;border-right:1px solid var(--line)}
+nav#side details{margin:2px 0}
+nav#side summary{cursor:pointer;font-weight:600;padding:5px 4px;border-radius:6px}
+nav#side summary:hover{background:var(--card)}
+nav#side a{display:block;padding:4px 8px;margin-left:8px;border-radius:6px;text-decoration:none;color:inherit;line-height:1.35}
+nav#side a:hover{background:var(--card)}
+nav#side a[aria-current=true]{background:var(--accent);color:var(--accent-fg)}
+nav#side .code{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;margin-right:4px}
+nav#side a[aria-current=true] .code{color:inherit}
+main{padding:20px 24px 80px;min-width:0}
+.wrap{max-width:78ch}
+
+/* contenu */
+h1{font-size:1.6rem;line-height:1.25;margin:.2em 0 .4em}
+h2,h3,h4,h5,h6{line-height:1.3;margin:1.6em 0 .5em}
+h2{font-size:1.3rem;border-bottom:1px solid var(--line);padding-bottom:.25em}
+h3{font-size:1.12rem} h4,h5,h6{font-size:1rem}
+.crumb{font-size:13px;color:var(--muted)}
+.src{font-size:13px;color:var(--muted);margin:0 0 1em}
+ul.mesures{list-style:none;padding:0;margin:.4em 0}
+ul.mesures>li{position:relative;padding:8px 10px 8px 12px;border-left:3px solid var(--line);margin:6px 0;background:var(--card);border-radius:0 8px 8px 0}
+ul.mesures ul.sub{list-style:disc;margin:.5em 0 .2em 1.2em;padding:0}
+ul.mesures ul.sub>li{padding:2px 0;margin:2px 0;background:none;border:0}
+.id{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-left:6px;white-space:nowrap}
+aside.cle{margin:14px 0;padding:10px 14px;background:var(--cle-bg);border-left:4px solid var(--cle-line);border-radius:0 8px 8px 0}
+aside.cle b.lbl{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--warn)}
+table{border-collapse:collapse;margin:1em 0;font-size:14px;display:block;overflow-x:auto}
+td,th{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top}
+tr:first-child td{font-weight:600;background:var(--card)}
+.flash{animation:flash 2.4s ease-out}
+@keyframes flash{0%,30%{outline:3px solid var(--accent);outline-offset:2px}100%{outline:3px solid transparent}}
+mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
+.pdfwarn{padding:8px 12px;background:var(--cle-bg);border:1px solid var(--cle-line);border-radius:8px;font-size:14px}
+
+/* résultats */
+.res{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0;background:var(--card)}
+.res.key{border-left:4px solid var(--cle-line)}
+.res .meta{font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.res .meta b{color:var(--fg)}
+.res .go{font-size:13px;margin-top:6px;display:inline-block}
+.summary{color:var(--muted);font-size:14px;margin:4px 0 8px}
+
+/* accueil */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);text-decoration:none;color:inherit;display:block}
+.card:hover{border-color:var(--accent)}
+.card .n{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.card .l{font-size:13px;color:var(--muted)}
+.tips code{background:var(--card2);padding:1px 6px;border-radius:5px}
+.tips li{margin:4px 0}
+.ex a{margin-right:10px}
+footer{color:var(--muted);font-size:12.5px;margin-top:40px;border-top:1px solid var(--line);padding-top:12px}
+
+@media (max-width:900px){
+  .top{position:static}
+  html{scroll-padding-top:12px}
+  .layout{grid-template-columns:1fr}
+  nav#side{display:none;position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line)}
+  nav#side.open{display:block}
+  #toc-toggle{display:inline-block}
+  main{padding:16px}
+}
+@media print{
+  .top,nav#side,.noprint{display:none!important}
+  .layout{display:block} main{padding:0} body{font-size:11pt}
+  ul.mesures>li,aside.cle{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <button class="btn" id="toc-toggle" aria-expanded="false" aria-controls="side">☰ Sommaire</button>
+    <div class="brand"><span id="brand-title">Programme LFI 2027</span><small>Extraction non officielle · <span id="brand-date"></span></small></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="Rechercher : retraite, « 100 % Sécu », smic -salaire, P3C1-M002…" autocomplete="off" aria-label="Rechercher dans le programme">
+    </div>
+  </div>
+  <div class="chips">
+    <label class="chip"><input type="radio" name="mode" value="prop" checked> Propositions</label>
+    <label class="chip"><input type="radio" name="mode" value="all"> Tout le texte</label>
+    <label class="chip"><input type="checkbox" id="onlykey"> ⭐ Mesures clés seulement</label>
+    <select id="docsel" aria-label="Limiter à un document"></select>
+    <button class="btn" id="clear" hidden>Effacer</button>
+    <button class="btn" id="csv" hidden>⬇ CSV des résultats</button>
+    <span class="summary" id="count" aria-live="polite" style="margin:0"></span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="side" aria-label="Sommaire"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+(() => {
+"use strict";
+const D = DATA, META = D.meta;
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* repli accents / casse en conservant la longueur (indispensable au surlignage) */
+function fold(s){
+  let o = "";
+  for (const c of s){
+    const n = c.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    o += n.length === c.length ? n : c;
+  }
+  return o;
+}
+const PROP = new Set(["mesure","sous_mesure","mesure_cle","puce"]);
+const KIND_NAME = {mesure:"Mesure", sous_mesure:"Sous-mesure", mesure_cle:"Mesure clé", puce:"Élément de liste", texte:"Texte", tableau:"Tableau"};
+
+/* index plat */
+const rows = [], unitIndex = {}, blockIndex = {};
+D.documents.forEach(d => d.units.forEach(u => {
+  unitIndex[u.code] = {d, u};
+  u.sections.forEach(s => s.blocks.forEach(b => {
+    const r = {d, u, s, b, f: fold(b.text + " " + (b.id || ""))};
+    rows.push(r);
+    if (b.id) blockIndex[b.id] = r;
+  }));
+}));
+
+/* ---------- en-tête / filtres ---------- */
+$("#brand-title").textContent = META.title.replace("Programme de la France insoumise — Présidentielle ", "Programme LFI ");
+$("#brand-date").textContent = "extrait le " + META.generated_at;
+const docsel = $("#docsel");
+docsel.innerHTML = '<option value="">Tous les documents</option>' +
+  D.documents.map(d => `<option value="${d.code}">${esc(d.short)}</option>`).join("");
+
+/* ---------- sommaire ---------- */
+function buildNav(){
+  let h = "";
+  D.documents.forEach(d => {
+    if (d.kind === "livre"){
+      h += `<details open><summary>${esc(d.short)}</summary>`;
+      let part = null, open = false;
+      d.units.forEach(u => {
+        if (u.part !== part){
+          if (open) h += "</details>";
+          part = u.part;
+          if (part){ h += `<details open><summary style="font-weight:500">${esc(part)}</summary>`; open = true; } else open = false;
+        }
+        const lab = u.code.endsWith("PRESENTATION") ? "Présentation" : esc(u.title.replace(/^Chapitre \d+ : /, ""));
+        const code = u.code.endsWith("PRESENTATION") ? "" : (u.code === "INTRO" ? "" : u.code);
+        h += `<a href="#${u.code}" data-u="${u.code}"><span class="code">${code}</span>${lab}</a>`;
+      });
+      if (open) h += "</details>";
+      h += "</details>";
+    } else if (d.kind === "pdf"){
+      if (!nav_pdf_open){ h += `<details><summary>Annexes (PDF)</summary>`; nav_pdf_open = true; }
+      h += `<a href="#${d.units[0].code}" data-u="${d.units[0].code}">${esc(d.short)}</a>`;
+    } else {
+      if (nav_pdf_open){ h += "</details>"; nav_pdf_open = false; }
+      h += `<a href="#${d.units[0].code}" data-u="${d.units[0].code}" style="margin-left:0;font-weight:600">${esc(d.short)}</a>`;
+    }
+  });
+  if (nav_pdf_open) h += "</details>";
+  $("#side").innerHTML = `<a href="#" data-u="" style="margin-left:0;font-weight:600">⌂ Accueil</a>` + h;
+}
+let nav_pdf_open = false;
+buildNav();
+
+/* ---------- rendu Markdown léger -> HTML ---------- */
+function md(b){
+  let t = esc(b.md || b.text);
+  t = t.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+  return t;
+}
+const idTag = b => b.id ? `<span class="id">${b.id}</span>` : "";
+
+function unitHTML(d, u){
+  let h = `<div class="wrap"><div class="crumb">${esc(d.short)}${u.part ? " › " + esc(u.part) : ""}</div>`;
+  h += `<h1>${esc(u.title)}</h1><p class="src"><a href="${u.url}" target="_blank" rel="noopener">Page d'origine</a></p>`;
+  if (d.kind === "pdf") h += `<p class="pdfwarn">⚠️ Texte extrait d'un PDF : les graphiques et tableaux chiffrés sont mal restitués. Se reporter au PDF d'origine pour les chiffres.</p>`;
+  let inList = false, liOpen = false, inSub = false;
+  const closeList = () => { if (inSub){ h += "</ul>"; inSub = false; } if (liOpen){ h += "</li>"; liOpen = false; } if (inList){ h += "</ul>"; inList = false; } };
+  u.sections.forEach(s => {
+    if (s.title && !(s.depth === 1 && s.title === u.title)){ closeList(); const lv = Math.min(6, s.depth + 1); h += `<h${lv}>${esc(s.title)}</h${lv}>`; }
+    s.blocks.forEach(b => {
+      const k = b.kind;
+      if (k === "mesure" || (k === "puce" && !(b.depth > 0))){
+        if (inSub){ h += "</ul>"; inSub = false; }
+        if (liOpen){ h += "</li>"; liOpen = false; }
+        if (!inList){ h += '<ul class="mesures">'; inList = true; }
+        h += `<li id="${b.id}">${md(b)}${idTag(b)}`; liOpen = true;
+      } else if (k === "sous_mesure" || k === "puce"){
+        if (!inList){ h += '<ul class="mesures">'; inList = true; }
+        if (!inSub){ h += '<ul class="sub">'; inSub = true; }
+        h += `<li id="${b.id}">${md(b)}${idTag(b)}</li>`;
+      } else {
+        closeList();
+        if (k === "mesure_cle") h += `<aside class="cle" id="${b.id}"><b class="lbl">⭐ Mesure clé${idTag(b)}</b>${md(b)}</aside>`;
+        else if (k === "tableau") h += "<table>" + b.rows.map(r => "<tr>" + r.map(c => `<td>${esc(c)}</td>`).join("") + "</tr>").join("") + "</table>";
+        else h += `<p>${md(b)}</p>`;
+      }
+    });
+  });
+  closeList();
+  return h + "</div>";
+}
+
+/* ---------- accueil ---------- */
+function homeHTML(){
+  const st = META.stats.LAEC, tot = st.mesure + st.sous_mesure + st.mesure_cle;
+  let h = `<div class="wrap"><h1>${esc(META.title)}</h1>
+  <p class="src">Source : <a href="${META.source}" target="_blank" rel="noopener">${META.source.replace("https://","")}</a> · extrait le ${META.generated_at} · document <strong>non officiel</strong> : seul le site fait foi.</p>
+  <div class="cards">
+    <div class="card"><div class="n">${tot}</div><div class="l">mesures dans <em>L'Avenir en commun</em><br>(${st.mesure} mesures + ${st.sous_mesure} sous-mesures + ${st.mesure_cle} mesures clés ; le site en annonce ${META.expected_measures})</div></div>
+    <div class="card"><div class="n">${D.documents.length}</div><div class="l">documents : livre, plans thématiques, plans d'investissement, annexes PDF</div></div>
+  </div>
+  <h2>Chercher</h2>
+  <ul class="tips">
+    <li>Tapez un ou plusieurs mots : tous doivent être présents (accents et majuscules ignorés).</li>
+    <li>Expression exacte : <code>"100 % Sécu"</code> · Exclure un mot : <code>retraite -âge</code></li>
+    <li>Retrouver une mesure par son identifiant : <code>P3C1-M002</code> (partie 3, chapitre 1, mesure 2).</li>
+    <li><em>Propositions</em> = mesures, sous-mesures, mesures clés et listes des plans ; <em>Tout le texte</em> inclut aussi les paragraphes d'analyse.</li>
+  </ul>
+  <p class="ex">Essayer : ${["retraite","SMIC","\"100 % Sécu\"","nucléaire","logement -étudiant"].map(x => `<a href="#" data-q='${esc(x)}'>${esc(x)}</a>`).join("")}</p>
+  <h2>Documents</h2><div class="cards">`;
+  D.documents.forEach(d => {
+    const c = META.stats[d.code];
+    const n = d.kind === "livre" ? tot : (c.puce || 0);
+    const lab = d.kind === "livre" ? "mesures" : (d.kind === "pdf" ? "paragraphes" : "éléments de liste");
+    h += `<a class="card" href="#${d.units[0].code}"><div class="l">${esc(d.kind === "livre" ? "Livre-programme" : d.kind === "plan_thematique" ? "Plan thématique" : d.kind === "plan_investissement" ? "Plan d'investissement" : "Annexe PDF")}</div><strong>${esc(d.short)}</strong><div class="l">${d.kind === "pdf" ? c.texte : n} ${lab}</div></a>`;
+  });
+  h += `</div>`;
+  if (META.warnings && META.warnings.length) h += `<footer>Notes d'extraction : ${META.warnings.map(esc).join(" · ")}</footer>`;
+  return h + "</div>";
+}
+
+/* ---------- état / navigation ---------- */
+const main = $("#main");
+let current = "";  // code d'unité affichée
+function setActive(code){
+  document.querySelectorAll("#side a").forEach(a => a.setAttribute("aria-current", String(a.dataset.u === code && code !== "")));
+}
+function showUnit(code, blockId){
+  const e = unitIndex[code];
+  if (!e){ main.innerHTML = homeHTML(); current = ""; setActive(""); window.scrollTo(0,0); return; }
+  if (current !== code){ main.innerHTML = unitHTML(e.d, e.u); current = code; }
+  setActive(code);
+  if (blockId){
+    const el = document.getElementById(blockId);
+    if (el){ el.scrollIntoView({block:"center"}); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); return; }
+  }
+  window.scrollTo(0,0);
+}
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h){ showUnit(""); return; }
+  if (blockIndex[h]){ clearSearch(true); showUnit(blockIndex[h].u.code, h); return; }
+  clearSearch(true); showUnit(unitIndex[h] ? h : "");
+}
+
+/* ---------- recherche ---------- */
+function parseQuery(q){
+  const pos = [], neg = [], re = /(-?)"([^"]+)"|(-?)(\S+)/g;
+  let m;
+  while ((m = re.exec(q))){
+    const isNeg = (m[1] || m[3]) === "-", t = fold(m[2] || m[4]).trim();
+    if (t) (isNeg ? neg : pos).push(t);
+  }
+  return {pos, neg};
+}
+function highlight(text, terms){
+  const f = fold(text), rg = [];
+  terms.forEach(t => { let i = 0; while ((i = f.indexOf(t, i)) !== -1){ rg.push([i, i + t.length]); i += t.length; } });
+  if (!rg.length) return esc(text);
+  rg.sort((a, b) => a[0] - b[0]);
+  const merged = [rg[0].slice()];
+  for (const r of rg.slice(1)){ const l = merged[merged.length-1]; if (r[0] <= l[1]) l[1] = Math.max(l[1], r[1]); else merged.push(r.slice()); }
+  let o = "", p = 0;
+  merged.forEach(([a, b]) => { o += esc(text.slice(p, a)) + "<mark>" + esc(text.slice(a, b)) + "</mark>"; p = b; });
+  return o + esc(text.slice(p));
+}
+const PAGE = 120;
+let results = [], shown = 0, lastTerms = [];
+function mode(){ return document.querySelector("input[name=mode]:checked").value; }
+function runSearch(){
+  const q = $("#q").value.trim();
+  $("#clear").hidden = $("#csv").hidden = !q;
+  if (!q){ results = []; if (location.hash.length > 1) route(); else { showUnit(""); } $("#count").textContent = ""; return; }
+  const {pos, neg} = parseQuery(q);
+  if (!pos.length && !neg.length){ return; }
+  const dsel = docsel.value, onlyKey = $("#onlykey").checked, md_ = mode();
+  results = rows.filter(r =>
+    (!dsel || r.d.code === dsel) &&
+    (md_ === "all" || PROP.has(r.b.kind)) &&
+    (!onlyKey || r.b.kind === "mesure_cle") &&
+    pos.every(t => r.f.includes(t)) && !neg.some(t => r.f.includes(t)));
+  lastTerms = pos; shown = 0; current = "";
+  setActive("");
+  main.innerHTML = '<div class="wrap" id="resbox"></div>';
+  $("#count").textContent = `${results.length} résultat${results.length > 1 ? "s" : ""}`;
+  appendResults();
+  window.scrollTo(0, 0);
+}
+function appendResults(){
+  const box = $("#resbox"); if (!box) return;
+  const old = box.querySelector(".more"); if (old) old.remove();
+  const slice = results.slice(shown, shown + PAGE);
+  let h = shown === 0 && !results.length ? '<p class="summary">Aucun résultat. Essayez moins de mots, ou « Tout le texte ».</p>' : "";
+  slice.forEach(r => {
+    const b = r.b, path = r.s.path.length ? r.s.path[r.s.path.length - 1] : "";
+    h += `<article class="res${b.kind === "mesure_cle" ? " key" : ""}">
+      <div class="meta"><b>${esc(r.d.short)}</b> › ${esc(r.u.title)}${path && path !== r.u.title ? " › " + esc(path) : ""}
+      · ${KIND_NAME[b.kind]}${b.id ? ` <span class="id">${b.id}</span>` : ""}</div>
+      <div>${highlight(b.text, lastTerms)}</div>
+      <a class="go" href="#${b.id || r.u.code}">Voir dans le contexte →</a></article>`;
+  });
+  box.insertAdjacentHTML("beforeend", h);
+  shown += slice.length;
+  if (shown < results.length){
+    box.insertAdjacentHTML("beforeend", `<p class="more"><button class="btn primary" id="more">Afficher ${Math.min(PAGE, results.length - shown)} de plus (${results.length - shown} restants)</button></p>`);
+    $("#more").onclick = appendResults;
+  }
+}
+function clearSearch(silent){
+  if ($("#q").value || !silent){ $("#q").value = ""; }
+  $("#clear").hidden = $("#csv").hidden = true; $("#count").textContent = ""; results = [];
+}
+function exportCSV(){
+  const q = s => '"' + String(s).replace(/"/g, '""') + '"';
+  const lines = [["id","document","unite","section","type","texte","url"].join(";")];
+  results.forEach(r => lines.push([r.b.id || "", r.d.short, r.u.title, r.s.path.join(" > "), r.b.kind, r.b.text, r.u.url].map(q).join(";")));
+  const blob = new Blob(["﻿" + lines.join("\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "resultats.csv"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- événements ---------- */
+let timer;
+$("#q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(runSearch, 140); });
+document.querySelectorAll("input[name=mode],#onlykey,#docsel").forEach(el => el.addEventListener("change", () => { if ($("#q").value.trim()) runSearch(); else if ($("#onlykey").checked || mode() === "all") { /* pas de requête : rien à filtrer */ } }));
+$("#clear").onclick = () => { clearSearch(); history.replaceState(null, "", location.pathname + location.search); route(); $("#q").focus(); };
+$("#csv").onclick = exportCSV;
+$("#toc-toggle").onclick = e => { const o = $("#side").classList.toggle("open"); e.currentTarget.setAttribute("aria-expanded", o); };
+window.addEventListener("hashchange", () => { route(); $("#side").classList.remove("open"); });
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-q]");
+  if (a){ e.preventDefault(); $("#q").value = a.dataset.q; runSearch(); return; }
+  const h = e.target.closest('a[href^="#"]');
+  if (h && h.getAttribute("href") === "#"){ e.preventDefault(); history.replaceState(null, "", location.pathname + location.search); route(); }
+});
+document.addEventListener("keydown", e => { if (e.key === "/" && document.activeElement !== $("#q")){ e.preventDefault(); $("#q").focus(); } if (e.key === "Escape" && $("#q").value){ $("#clear").click(); } });
+
+route();
+})();
+</script>
+</body>
+</html>
